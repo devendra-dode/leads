@@ -4,7 +4,7 @@
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <a href="<?= base_url('service/create') ?>" class="btn btn-primary">
+                    <a href="<?= base_url('services/create') ?>" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add New Service
                     </a>
                 </div><!-- /.col -->
@@ -20,19 +20,9 @@
     <!-- Main content -->
     <section class="content">
 
-        <?php if (session()->has('errors')) : ?>
-            <div class="alert alert-danger">
-                <?php foreach (session('errors') as $error) : ?>
-                    <p><?= esc($error) ?></p>
-                <?php endforeach ?>
-            </div>
-        <?php endif ?>
+        <?php include APPPATH . 'Views/messages.php'; ?>  <!-- Include Messages Here -->
 
-        <?php if (session()->has('success')) : ?>
-            <div class="alert alert-success">
-                <?= session('success') ?>
-            </div>
-        <?php endif ?>
+<input type="hidden" id="serviceType" value="service">
 
     <div class="container-fluid">
         <div class="row">
@@ -70,8 +60,7 @@
 
 <?= $this->section('scripts') ?>
 <script>
-  $(function () {
-
+$(function () {
     $("#serviceList").DataTable({
         responsive: true,
         lengthChange: false,
@@ -84,7 +73,10 @@
         serverSide: true,
         stateSave: true,
         ajax: {
-            url: '/fetchServices',
+            url: '<?= base_url('/fetchServices') ?>',
+            data: function (d) {
+                d.type = 'service'; // ✅ Always pass this filter
+            },
             dataSrc: function(json) {
                 console.log("API Response:", json); // ✅ Debugging
                 return json.data;
@@ -94,16 +86,18 @@
             {
                 targets: -1, 
                 data: null, 
+                searchable: false,  // ❌ Make it non-searchable
+                orderable: false,   // ❌ Make it non-sortable
                 render: function (data, type, row) {
-                    return `<a href="/service/edit/${row[0]}" class="btn btn-sm btn-info">
+                    return `<a href="<?= base_url('/') ?>services/edit/${row[0]}" class="btn btn-sm btn-info">
                                 <i class="fa fa-pencil-alt"></i>
                             </a>`;
                 }
             }
         ]
     });
+});
 
-  });
 
 </script>
 <?= $this->endSection() ?>

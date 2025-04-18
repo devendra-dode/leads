@@ -93,4 +93,8 @@ define('EVENT_PRIORITY_NORMAL', 100);
  */
 define('EVENT_PRIORITY_HIGH', 10);
 
-define('SITE_NAME', 'PaisaOnClick');
+define('SITE_NAME', 'PaisaClick');
+define('HOMEBANNER', 'HomeBanner');
+define('HOMETEXTSLIDER', 'HomeTextSlider');
+define('PAGE_CATEGORY', ['MainPage', 'SidePage']);
+define('SERVICE_CATEGORY', ['Loan', 'Credit', 'Insurance']);

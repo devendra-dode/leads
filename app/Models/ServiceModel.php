@@ -8,7 +8,7 @@ class ServiceModel extends Model {
 
     protected $table = 'tbl_services';
     protected $primaryKey = 'serviceId';
-    protected $allowedFields = ['name', 'short_description', 'detail', 'status', 'icon', 'type', 'slug'];
+    protected $allowedFields = ['name', 'short_description', 'details', 'status', 'icon', 'type', 'slug'];
     protected $beforeInsert = ['beforeInsert'];
     protected $beforeUpdate = ['beforeUpdate'];
 
@@ -44,5 +44,24 @@ class ServiceModel extends Model {
     {
         return $this->where('status', 'active')->get()->getResultArray();
     }
+    
+    public function getContentBySlug($slug)
+    {
+        // Fetch a single row based on the slug
+        return $this->where('slug', $slug)
+                    ->first();  // 'first()' fetches the first row (if any), instead of using 'getRowArray()'
+    }
 
+    public function getByDynamicConditions(array $whereInConditions = []): array
+    {
+        $builder = $this;
+
+        foreach ($whereInConditions as $column => $values) {
+            if (is_array($values) && !empty($values)) {
+                $builder = $builder->whereIn($column, $values);
+            }
+        }
+
+        return $builder->findAll(); // return all matching results
+    }
 }

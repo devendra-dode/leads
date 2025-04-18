@@ -20,7 +20,7 @@ class Login extends BaseController
 
             $errors = [
                 'password' => [
-                    'validateUser' => 'Email or Password don\'t match'
+                    'validateUser' => 'Email or Password does not match'
                 ]
             ];
 
@@ -32,9 +32,13 @@ class Login extends BaseController
                 $user = $model->where('email', $this->request->getVar('email'))
                         ->first();
 
-                $this->setUser($user);
-
-                return redirect()->to('dashboard');
+                // Check if roleId is 1 and isAdmin is 1
+                if ($user['roleId'] == 1 && $user['isAdmin'] == 1) {
+                    $this->setUser($user);
+                    return redirect()->to('dashboard');
+                } else {
+                    return redirect()->to('login')->with('error', 'Unauthorized access.');
+                }
             }
         }
 

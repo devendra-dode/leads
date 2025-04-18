@@ -8,7 +8,7 @@ class UserModel extends Model {
 
     protected $table = 'tbl_users';
     protected $primaryKey = 'userId';
-    protected $allowedFields = ['email', 'password', 'name', 'mobile', 'roleId', 'isAdmin', 'updatedBy', 'updatedDtm'];
+    protected $allowedFields = ['email', 'password', 'name', 'mobile', 'roleId', 'isAdmin', 'updatedBy', 'updatedDtm', 'alternate_mobile', 'address', 'office_address','addhar_no', 'pan_no'];
     protected $beforeInsert = ['beforeInsert'];
     protected $beforeUpdate = ['beforeUpdate'];
 

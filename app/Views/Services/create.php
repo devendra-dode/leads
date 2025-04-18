@@ -14,6 +14,8 @@
             </div>
         </div>
     </div>
+    
+    <?php include APPPATH . 'Views/messages.php'; ?>  <!-- Include Messages Here -->
 
     <section class="content">
         <div class="container-fluid">
@@ -24,7 +26,7 @@
                             <h3 class="card-title">Create Service</h3>
                         </div>
 
-                        <form action="<?= base_url('service/store') ?>" method="post" enctype="multipart/form-data">
+                        <form action="<?= base_url('services/store') ?>" method="post" enctype="multipart/form-data">
                             <?= csrf_field() ?>
 
                             <?php if (session()->has('errors')) : ?>
@@ -42,6 +44,19 @@
                             <?php endif ?>
 
                             <div class="card-body">
+
+                                <div class="form-group">
+                                    <label for="serviceCategory">Service Category</label>
+                                    <select class="form-control" id="serviceCategory" name="service_category" required>
+                                        <option value="">Select Category</option>
+                                        <?php foreach (SERVICE_CATEGORY as $category): ?>
+                                            <option value="<?= $category ?>" <?= old('service_category') == $category ? 'selected' : '' ?>>
+                                                <?= $category ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
                                 <div class="form-group">
                                     <label for="serviceName">Service Name</label>
                                     <input type="text" class="form-control" id="serviceName" name="service_name" value="<?= old('service_name') ?>" placeholder="Enter service name" required>
@@ -54,7 +69,7 @@
 
                                 <div class="form-group">
                                     <label for="shortDescription">Short Description</label>
-                                    <textarea class="form-control" id="shortDescription" name="short_description" rows="3" placeholder="Enter short description" required><?= old('short_description') ?></textarea>
+                                    <textarea class="form-control" id="shortDescription" name="short_description" rows="25" placeholder="Enter short description" required><?= old('short_description') ?></textarea>
                                 </div>
 
                                 <div class="form-group">
@@ -80,13 +95,13 @@
 
                                 <div class="form-group">
                                     <label for="metaImage">Meta Image (PNG, JPG)</label>
-                                    <input type="file" class="form-control-file" id="metaImage" name="image_image" accept="image/*">
+                                    <input type="file" class="form-control-file" id="metaImage" name="meta_image" accept="image/*">
                                 </div>
                             </div>
 
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-success">Submit</button>
-                                <a href="<?= base_url('/service') ?>" class="btn btn-secondary">Cancel</a>
+                                <a href="<?= base_url('/services') ?>" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
 
@@ -99,5 +114,5 @@
 <!-- CKEditor CDN -->
 <script src="https://cdn.ckeditor.com/4.20.0/standard/ckeditor.js"></script>
 <script>
-    CKEDITOR.replace('description'); 
+    CKEDITOR.replace('description2'); 
 </script>

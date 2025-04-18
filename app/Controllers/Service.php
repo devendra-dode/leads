@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Backend;
 use App\Models\ServiceModel;
 use App\Models\SeoMetaModel;
-use App\Libraries\DataTable;
+use Hermawan\DataTables\DataTable;
 use CodeIgniter\API\ResponseTrait;
 
 class Service extends Backend
@@ -42,23 +42,13 @@ class Service extends Backend
      */
     public function fetchServices()
     {
-        $dataTable = new DataTable();
+        $serviceModel = new ServiceModel(); // Use correct model
+        $serviceModel->select('serviceId, name, short_description, icon, created_at')
+                     ->whereIn('type', SERVICE_CATEGORY); // Use whereIn for array
 
-        $columns = [
-            ['name' => 'serviceId'],
-            ['name' => 'name'],
-            ['name' => 'short_description'],
-            ['name' => 'icon'],
-            ['name' => 'created_at', 'formatter' => 'date_only']
-        ];
-
-        // ✅ Pass model name as a string and WHERE condition separately
-        $where = ['type' => 'service']; // Only active services
-
-        $response = $dataTable->process('ServiceModel', $columns, $where);
-
-        return $this->setResponseFormat('json')->respond($response);
+        return DataTable::of($serviceModel)->toJson();
     }
+
     
     public function store()
     {
@@ -94,42 +84,40 @@ class Service extends Backend
             'name'              => $request->getPost('service_name'),
             'icon'              => $request->getPost('service_icon'),
             'short_description' => $request->getPost('short_description'),
-            'details'            => $request->getPost('description'),
+            'details' => str_replace(['&nbsp;', '<br>', '<br />'], ' ', $this->request->getPost('description')),
             'slug'              => $slug,
             'status'              => 'active',
-            'type'              => 'service'
+            'type'              => $request->getPost('service_category'),
+
         ];
 
         $serviceId = $serviceModel->insert($serviceData);
 
-        // **Meta Image Upload**
-        $metaImagePath = null;
-        if ($image = $request->getFile('meta_image')) {
-            if ($image->isValid() && !$image->hasMoved()) {
-                $metaImagePath = $image->store('meta_images', 'public');
-            }
-        }
+        $metaImagePath = $this->uploadImage('meta_image');
 
-        // **SEO Meta Data Save**
+        $metaTitle = $request->getPost('meta_title');
+        $pageName  = $request->getPost('service_name');
+
         $seoModel->insert([
             'page_url'           => base_url('/service/' . $slug),
-            'page_name'           => $request->getPost('service_name'),
-            'meta_title'         => esc($request->getPost('meta_title') ?? $request->getPost('service_name')),
+            'page_name'          => $pageName,
+            'page_type'          => 'service',
+            'meta_title'         => esc(!empty($metaTitle) ? $metaTitle : $pageName),
             'meta_description'   => esc($request->getPost('meta_description') ?? ''),
             'meta_keywords'      => esc($request->getPost('meta_keywords') ?? ''),
-            'og_title'           => esc($request->getPost('meta_title') ?? $request->getPost('service_name')),
+            'og_title'           => esc(!empty($metaTitle) ? $metaTitle : $pageName),
             'og_description'     => esc($request->getPost('meta_description') ?? ''),
-            'og_image'           => $metaImagePath ? base_url('uploads/' . esc($metaImagePath)) : null,
+            'og_image'           => $metaImagePath ?: null,
             'canonical_url'      => base_url('/service/' . $slug),
 
             // Twitter Meta Data
-            'twitter_title'      => esc($request->getPost('meta_title') ?? $request->getPost('service_name')),
+            'twitter_title'      => esc(!empty($metaTitle) ? $metaTitle : $pageName),
             'twitter_description'=> esc($request->getPost('meta_description') ?? ''),
-            'twitter_image'      => $metaImagePath ? base_url('uploads/' . esc($metaImagePath)) : null,
+            'twitter_image'      => $metaImagePath ?: null,
         ]);
 
 
-        return redirect()->back()->with('success', 'Service added successfully!');
+        return redirect()->to('/services')->with('success', 'Service added successfully!');
     }
 
     // Show Edit Form
@@ -139,7 +127,7 @@ class Service extends Backend
         $service = $serviceModel->find($id);
 
         if (!$service) {
-            return redirect()->to('/service')->with('error', 'Service not found');
+            return redirect()->to('/services')->with('error', 'Service not found');
         }
 
         $this->loadViews('services/edit', ['service' => $service]);
@@ -148,17 +136,20 @@ class Service extends Backend
     // Update Service
     public function update($id)
     {
+        $request = service('request');
+
         $serviceModel = new ServiceModel();
         $service = $serviceModel->find($id);
 
         if (!$service) {
-            return redirect()->to('/service')->with('error', 'Service not found');
+            return redirect()->to('/services')->with('error', 'Service not found');
         }
 
         $validation = \Config\Services::validation();
         $validation->setRules([
             'service_name' => 'required|min_length[3]|max_length[255]',
             'service_icon' => 'required',
+            'service_category' => 'required',
             'short_description' => 'required',
             'description' => 'required',
         ]);
@@ -171,12 +162,30 @@ class Service extends Backend
             'name' => $this->request->getPost('service_name'),
             'icon' => $this->request->getPost('service_icon'),
             'short_description' => $this->request->getPost('short_description'),
-            'details' => $this->request->getPost('description'),
+            'details' => str_replace(['&nbsp;', '<br>', '<br />'], ' ', $this->request->getPost('description')),
+            'type'    => $request->getPost('service_category'),
         ];
 
         $serviceModel->update($id, $data);
 
-        return redirect()->to('/service')->with('success', 'Service updated successfully');
+        return redirect()->to('/services')->with('success', 'Service updated successfully');
+    }
+
+    private function uploadImage($field, $existingPath = null)
+    {
+        $file = $this->request->getFile($field);
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $newName = $file->getRandomName();
+            $file->move(ROOTPATH . 'public/uploads/meta_images/', $newName);
+
+            // Delete old image if it exists
+            if ($existingPath && file_exists(ROOTPATH . 'public/' . $existingPath)) {
+                unlink(ROOTPATH . 'public/' . $existingPath);
+            }
+
+            return base_url('public/uploads/meta_images/' . $newName); // Store relative path
+        }
+        return $existingPath; // Keep existing image if no new upload
     }
 
 }

@@ -15,6 +15,9 @@
         </div>
     </div>
 
+    <?php include APPPATH . 'Views/messages.php'; ?>  <!-- Include Messages Here -->
+
+
     <section class="content">
         <div class="container-fluid">
             <div class="row">
@@ -24,10 +27,25 @@
                             <h3 class="card-title">Edit Service</h3>
                         </div>
 
-                        <form action="<?= base_url('service/update/' . $service['serviceId']) ?>" method="post" enctype="multipart/form-data">
+                        <form action="<?= base_url('services/update/' . $service['serviceId']) ?>" method="post" enctype="multipart/form-data">
                             <?= csrf_field() ?>
 
                             <div class="card-body">
+
+
+                                <div class="form-group">
+                                    <label for="pageCategory">Service Category</label>
+                                    <select class="form-control" id="serviceCategory" name="service_category" required>
+                                        <option value="">Select Category</option>
+                                        <?php foreach (SERVICE_CATEGORY as $category): ?>
+                                            <option value="<?= $category ?>" 
+                                                <?= (old('service_category', $service['type'] ?? '') == $category) ? 'selected' : '' ?>>
+                                                <?= $category ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
                                 <div class="form-group">
                                     <label for="serviceName">Service Name</label>
                                     <input type="text" class="form-control" id="serviceName" name="service_name" value="<?= old('service_name', $service['name']) ?>" placeholder="Enter service name" required>
@@ -45,13 +63,13 @@
 
                                 <div class="form-group">
                                     <label for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description" required><?= old('description', $service['details']) ?></textarea>
+                                    <textarea class="form-control" id="description" name="description" rows="25" placeholder="Enter description" required><?= old('description', $service['details']) ?></textarea>
                                 </div>
                             </div>
 
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-success">Update</button>
-                                <a href="<?= base_url('/service') ?>" class="btn btn-secondary">Cancel</a>
+                                <a href="<?= base_url('/services') ?>" class="btn btn-secondary">Cancel</a>
                             </div>
                         </form>
 
@@ -64,5 +82,5 @@
 
 <script src="https://cdn.ckeditor.com/4.20.0/standard/ckeditor.js"></script>
 <script>
-    CKEDITOR.replace('description'); 
+    CKEDITOR.replace('description1'); 
 </script>

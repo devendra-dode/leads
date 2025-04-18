@@ -10,6 +10,8 @@ class SeoMetaModel extends Model {
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'page_url',
+        'page_name',
+        'page_type',
         'meta_title',
         'meta_description',
         'meta_keywords',
@@ -58,6 +60,22 @@ class SeoMetaModel extends Model {
     public function getMetadataByPageUrl($page_url)
     {
         return $this->where('page_url', $page_url)->first();
+    }
+
+    /**
+     * Get SEO meta data by page name
+     */
+    public function getByPageName(string $pageName): array
+    {
+        return $this->where('page_name', $pageName)->first() ?? [];
+    }
+
+    /**
+     * Optional: Get SEO meta data by page type
+     */
+    public function getByPageType(string $pageType): array
+    {
+        return $this->where('page_type', $pageType)->first() ?? [];
     }
 
 }
