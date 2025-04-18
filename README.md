@@ -1,11 +1,11 @@
-# CodeIgniter 4 Admin Panel
+CodeIgniter 4 Lead Management System
+What is CodeIgniter 4 Lead Management System?
+CodeIgniter 4 Lead Management System is a simple and extensible web-based application designed to help businesses capture, manage, and track leads effectively. It serves as a foundational CRM-like system that can be customized to suit small to medium-scale business needs.
 
-## What is CodeIgniter 4 Admin Panel?
+This project allows users to add, edit, view, and delete leads with essential details like contact information, source, status, follow-up dates, and more — helping streamline sales and marketing processes.
 
-CodeIgniter 4 Admin Panel is simple, easily extendable admin panel might be used as CMS boilerplate for your small website, or backend panel for internal entries.
+Originally built with CodeIgniter 3, this system has been upgraded to CodeIgniter 4 to leverage modern PHP features, improved performance, and better scalability.
 
-This project is basically built with CodeIgniter 3 initially, now we are trying to move this to CodeIgniter 4 for more advance development features.
+Follow this repository for more information and contributions:
 
-Follow this repository for more information
-- [Admin-Panel-User-Management-using-CodeIgniter
-](https://github.com/kishor10d/Admin-Panel-User-Management-using-CodeIgniter/)
+Lead Management System using CodeIgniter 4
